@@ -2,44 +2,20 @@
 * TEST RUNNER
 */
 
-// Dependencies
-const helpers = require("../lib/helpers");
-const assert = require("assert");
+process.env.NODE_ENV="testing";
 
 // Application logic for the test runner
 _app = {}
 
-
 // container for the test
-_app.tests = {
-    'unit' : {}
-}
-
-// Assert that the getANumber function is returning a number
-_app.tests.unit['helpers.getANumber should return a number'] = function(done) {
-    const value = helpers.getANumber();
-    assert.equal(typeof(value), "number")
-}
-
-
-// Assert that the getANumber function is returning a 1
-_app.tests.unit['helpers.getANumber should return 1'] = function(done) {
-    const val = helpers.getANumber();
-    assert.equal(val, 1);
-    done();
-}
-
-// Assert that the getANumber function is returning a 2
-_app.tests.unit['helpers.getANumber should return 2'] = function(done) {
-    const val = helpers.getANumber();
-    assert.equal(val, 2);
-    done();
-}
+_app.tests = {}
+_app.tests.unit = require("./unit");
+_app.tests.api = require("./api");
 
 _app.countTests = () => {
     let counter = 0;
     Object.entries(_app.tests).forEach(testSet => {
-        counter += Object.keys(testSet).length;
+        counter += Object.keys(testSet[1]).length;
     })
     return counter;
 }
@@ -97,7 +73,7 @@ _app.produceTestReport = (limit, successes, errors) => {
         console.log("-----------------BEGIN ERROR DETAILS---------------------")
 
         errors.forEach((err) => {
-            console.log(err.name);
+            console.log('\x1b[31m%s\x1b[0m', `${err.name} did not succeed`)
             console.log(err.error);
         })
 
@@ -106,9 +82,10 @@ _app.produceTestReport = (limit, successes, errors) => {
     console.log("")
     console.log("-----------------END TEST REPORT---------------------")
 
+    // kill the app because several process have been started
+    process.exit(0);
 } 
 
-console.log(_app.tests.unit)
 // RUN the tests
 _app.runTests();
 
